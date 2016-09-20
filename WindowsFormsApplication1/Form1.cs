@@ -27,9 +27,7 @@ namespace WindowsFormsApplication1
 
         private void metroButton1_Click(object sender, EventArgs e)
         {
-            PS.Connect();
-            label_CPUState.Text = PS.GetState().ToString();
-            label_ScanMode.Text = PS.GetScanMode().ToString();
+
 
         }
 
@@ -42,7 +40,7 @@ namespace WindowsFormsApplication1
         {
             string state = comboBox_CPUState.SelectedItem.ToString();
             PS.SetState(state);
-            label_CPUState.Text = PS.GetState().ToString();
+            //label_CPUState.Text = PS.GetState().ToString();
         }
 
         private void comboBoxScanMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -56,7 +54,44 @@ namespace WindowsFormsApplication1
             {
                 PS.SetScanMode(S7PROSIMLib.ScanModeConstants.ContinuousScan);
             }
-            label_ScanMode.Text = PS.GetScanMode().ToString();
+            //label_ScanMode.Text = PS.GetScanMode().ToString();
+        }
+
+        private void checkBoxInput_CheckedChanged(object sender, EventArgs e)
+        {
+            object IO_O = checkBoxInput.Checked;
+            PS.WriteInputPoint(0, 0, ref IO_O);
+        }
+
+        private void checkBoxMem_CheckedChanged(object sender, EventArgs e)
+        {
+            object MO_O = checkBoxMem.Checked;
+            PS.WriteFlagValue(0, 0, ref MO_O);
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            string state = PS.GetState().ToString();
+            if (state == "ERROR")
+            {
+                PS.Connect();
+            }
+
+            else if (state != "ERROR")
+            {
+                label_CPUState.Text = state;
+                label_ScanMode.Text = PS.GetScanMode().ToString();
+
+                object QO_O = false;
+                PS.ReadOutputPoint(0, 0, S7PROSIMLib.PointDataTypeConstants.S7_Bit, ref QO_O);
+                checkBoxOutput.Checked = (bool)QO_O;
+            }
+            if (PS.GetState().ToString() == "ERROR")
+            {
+                label_CPUState.Text = "desconectado";
+                label_ScanMode.Text = "desconectado";
+            }
+
         }
     }
 }
